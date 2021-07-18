@@ -1,0 +1,1013 @@
+---
+title: "R graphic gallery"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    source_code: embed
+    theme: united
+    navbar:
+      - { icon: "fa-facebook", href: "https://www.facebook.com/b.byambadorj0212/",align: right, target: blank}
+      - { icon: "fa-github", href: "https://github.com/Byambaa212/R_Graphic_Gallery",align: right, target: blank}
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(Hmisc) # Small tick marks
+library(ggplot2)
+library(plotly)
+library(tidyverse)
+library(extrafont)
+library(gridExtra) # Combine ggplot
+library(ggthemes)
+library(RColorBrewer)
+library(gganimate)
+library(dygraphs)
+library(highcharter)
+library(forecast)
+
+
+# R markdown
+# # Multiple pages {data-icon= 'fontawesome.com' }
+# ## Column or Row {data-width=} or {data-height}, {.tabset} tabs in 1 chart 
+# ### New chart {fig.height=, fig.width=}
+# Data
+set.seed(3)
+data <- data.frame(x = 1:20 + rnorm(20,mean=3),
+                  y = 1:20 + rnorm(20,mean=3))
+datats <- ts(matrix(rnorm(500), nrow = 500, ncol = 1),
+              start = c(1900, 1), frequency = 12)
+datafactor <- factor(mtcars$cyl)
+
+ydat=seq(0,95,by=5)
+ptypedata <- data.frame(x=1:20,y=ydat)
+
+set.seed(4)
+data2 <- data.frame(x = 1:20 + rnorm(20,mean=3),
+                  y = 1:20 + rnorm(20,mean=3))
+
+set.seed(3)
+dsmall <- diamonds[sample(nrow(diamonds), 1000),]
+
+set.seed(4)
+data2 <- data.frame(x = 1:20 + rnorm(20,mean=3),
+                  y = 1:20 + rnorm(20,mean=3))
+
+density <- density(diamonds$carat)
+
+lungDeaths <- cbind(mdeaths, fdeaths, ldeaths)
+
+a <- as.data.frame(table(dsmall$cut))
+colnames(a) <- c("cut","n")
+```
+
+plot {data-icon="fas fa-bars"}
+==================================================
+
+Column 1 {.tabset}
+--------------------------------------------------
+### ScatterPlot
+```{r}
+# Random data
+plot(dsmall$carat,dsmall$price,main="Scatter Plot",col="deeppink4",xlab="",ylab="",pch=16)
+```
+
+### BarPlot
+```{r}
+plot(dsmall$cut,main="Bar Plot",col="deeppink4",xlab="",ylab="")
+```
+
+
+### BoxPlot
+```{r}
+plot(dsmall$cut,dsmall$carat,main="Box Plot",col="deeppink4",xlab="",ylab="")
+```
+
+### TimeSeries
+```{r}
+plot(datats,main="Time Series",col="deeppink4",xlab="")
+```
+
+### Pie chart
+```{r}
+pie(a$n, labels = c("Fair","Good","Very Good","Premium","Ideal"), border="white",col=brewer.pal(5, "Set1"))
+```
+
+### Histogram
+```{r}
+h <- hist(diamonds$carat, main="",
+     xlab="Carat",
+     xlim=c(0,3),
+     col="deeppink4",
+     breaks = 16,
+     cex.axis = 1                                 
+
+)
+text(h$mids[1:5],h$counts[1:5],labels=h$counts[1:5], adj=c(0.5, 1.4))
+text(h$mids[6],h$counts[6],labels=h$counts[6], adj=c(0.5, -0.5))
+```
+
+### Density
+```{r}
+plot(density,col="deeppink4",xlab="",ylab="",main="Density plot")
+polygon(density,col="deeppink4",xlab="",ylab="",main="Density plot")
+```
+
+### Plot Types
+```{r}
+attach(ptypedata)
+plot(x, y+70, type = "p", main = "Types", ylim= c(0,170),xlab="",ylab="", col=1)
+par(new=T)
+plot(x, y+60, type = "l", ylim= c(0,170), ann= F,axes=F, col=2)
+par(new=T)
+plot(x, y+50, type = "b", ylim= c(0,170), ann= F,axes=F, col=3)
+par(new=T)
+plot(x, y+40, type = "c", ylim= c(0,170), ann= F,axes=F, col=4)
+par(new=T)
+plot(x, y+30, type = "s", ylim= c(0,170), ann= F,axes=F, col=5)
+par(new=T)
+plot(x, y+20, type = "o", ylim= c(0,170), ann= F,axes=F, col=6)
+par(new=T)
+plot(x, y+15, type = "h", ylim= c(0,170), ann= F,axes=F, col=7)
+```
+
+Column 2
+--------------------------------------------------
+### Type Lines
+```{r}
+reg <- lm(x~y,data=data)
+plot1 <- plot(data,
+     type="l",
+     col="red",                                              # Border color
+     col.main = "black",                                     # Title color
+     lwd=3,                                                  # Border width 
+     main= "Linear Regression line",                         # Title 
+     sub= "",                                                # Subtitle
+     xlab="X label",                                         # X label
+     ylab="Y label",                                         # Y label
+     cex.main = 2,                                           # Title size
+     cex.lab = 1,                                            # X-axis and Y-axis labels size
+     cex.axis = 0.4,                                         # Axis labels size
+     ann= T,                                                 # If ann=F delete label names
+     axes=F,                                                 # If axes=F remove axis
+     tck=0.02,                                               # Interior ticks
+     #xaxt="n",                                               # Remove axis tick labels
+     #yaxt="n",                                               # Remove axis tick labels
+     las=1,                                                  # Rotate axis labels
+     xlim=c(0,25),                                           # x limit
+     ylim=c(0,25))                                           # y limit
+axis(1,at = seq(round(min(x)), round(max(x)), by = 1), labels = 1:20)
+axis(2) #,at=0:25)
+abline(reg,col="blue",
+       lty=2,                                               # plot line style (1-6)
+       lwd=3)                                               # plot line width 
+text(19,14,"Regression Line")                               # Add text at coordinates
+#minor.tick(nx = 3, ny = 3, tick.ratio = 0.5)
+legend("bottomright", legend = c("Data", "Linear Regression"), lwd = 3, col = c("red", "blue"),lty = c(1,2))
+```
+
+### Type Points
+```{r}
+group <- ifelse(x < 8 , "1", ifelse(x > 16, "3", "2"))
+df <- data.frame(x = x, y = y, group = factor(group))
+colors <- c("blue3", "green3", "yellow")
+plot(data,
+     pch=23,                                                 # Symbol
+     col=colors[factor(group, levels = c("1", "2", "3"))],   # Border color
+     bg="red1",                                            # Fill color
+     col.main = "coral3",                                    # Title color
+     col.sub = "blue",                                       # Subtitle color
+     col.lab = "brown3",                                     # X and Y-axis labels color
+     col.axis = "maroon4",                                   # Tick labels color
+     fg = "indianred3",                                      # Box color
+     cex=2.5,                                                # Symbol size
+     lwd=4,                                                  # Border width 
+     main= "Plot including everything",                      # Title 
+     sub= "",                                                # Subtitle
+     xlab="X label",                                         # X label
+     ylab="Y label",                                         # Y label
+     cex.main = 2,                                           # Title size
+     cex.sub = 1.5,                                          # Subtitle size
+     cex.lab = 1.3,                                          # X-axis and Y-axis labels size
+     cex.axis = 1.3,                                         # Axis labels size
+     ann= T,                                                 # If ann=F delete label names
+     axes=T,                                                 # If axes=F remove axis
+     tck=0.02,                                               # Interior ticks
+     #xaxt="n",                                               # Remove axis tick labels
+     #yaxt="n",                                               # Remove axis tick labels
+     las=1,                                                  # Rotate axis labels
+     xlim=c(0,25),                                           # x limit
+     ylim=c(0,25))                                           # y limit
+#axis(1,at = seq(round(min(x)), round(max(x)), by = 1), labels = 1:21)
+#axis(2) #,at=0:25)
+#abline(reg,col="black",
+#       lty=2,                                               # plot line style (1-6)
+#       lwd=3)                                               # plot line width 
+#text(19,14,"Regression Line")                               # Add text at coordinates
+#minor.tick(nx = 3, ny = 3, tick.ratio = 0.5)
+#legend("bottomright", legend = c("red", "green"), lwd = 3, col = c("red", "green"))
+```
+ 
+# ggplot {data-icon="fa-signal"}
+## Column 1 {.active .tabset .tabset-fade .tabset-pills}
+### BarPlot
+```{r}
+ggplot(diamonds,aes(x=cut))+geom_bar(fill="deeppink4", color="black", alpha=0.75)+theme_calc()
+```
+
+### BarPlot+
+```{r}
+ggbar5 <- ggplot(diamonds,aes(cut,fill=color))+geom_bar(position = "dodge")+coord_flip()+
+  scale_fill_brewer(palette="YlOrRd")
+ggplotly(ggbar5)
+```
+
+### BoxPlot
+```{r}
+ggplot(dsmall,aes(y=carat,x=cut))+geom_boxplot(fill="deeppink4", color="black", alpha=0.75)+theme_calc()
+```
+
+### BoxPlot+
+```{r}
+a1 <- ggplot(dsmall, aes(x=cut, y=carat),alpha=0.75) + 
+  geom_boxplot(aes(fill=cut)) + 
+  scale_fill_brewer(palette="PuRd",name="Quality") +
+  transition_states(clarity,
+    transition_length = 2,
+    state_length = 1) +
+  enter_fade() + 
+  exit_shrink() +
+  ease_aes('sine-in-out')
+animate(a1)
+```
+
+### Violin
+```{r}
+ggplot(dsmall,aes(y=carat,x=cut))+
+  geom_violin(fill="deeppink4", color="black", alpha=0.75)+theme_calc()
+```
+
+### Violin+
+```{r}
+ggplot(dsmall,aes(y=carat,x=cut))+
+  geom_violin(aes(fill=cut),alpha=0.75)+theme_wsj()+
+    scale_fill_brewer(palette="PRGn",name="Quality")+
+  theme(legend.direction = "vertical",legend.position = "right",
+        axis.text.x=element_text(angle=-45, size=12,vjust=0.9))+
+  ylim(c(0,3))
+```
+
+### Histogram
+```{r}
+ggplot(dsmall,aes(x=carat))+geom_histogram(fill="deeppink4", color="black", alpha=0.75,binwidth = 0.2)+
+  xlim(c(0,3))+theme_calc()
+```
+
+### Histogram+
+```{r}
+hist2 <- ggplot(dsmall,aes(x=carat))+geom_histogram(aes(fill=cut), binwidth = 0.2,
+                                                    color="black",alpha=0.75)+
+  xlim(c(0,3))+ 
+  scale_fill_brewer(palette="BuPu",name="Quality")+
+  theme(legend.position = "bottom")+
+  theme_fivethirtyeight()
+ggplotly(hist2)
+```
+
+### Density
+```{r}
+ggplot(dsmall,aes(x=price))+
+      geom_density(aes(fill=color), alpha=0.75)+theme_calc()
+```
+
+### Density+
+```{r}
+options(scipen = 999)
+ggplot(dsmall,aes(x=price))+
+      geom_density(aes(fill=color), alpha=0.75)+
+  theme_gdocs()+
+  facet_wrap(vars(color))+
+  scale_fill_brewer(palette="Paired",name="Color")+
+  theme(axis.text.x=element_text(angle=-45, size=10,vjust=0.1),
+        axis.text.y=element_text(angle=0, size=10,vjust=0.1))
+```
+
+### Hexbin
+```{r}
+ggplot(dsmall, aes(x=price, y=carat) ) +
+  geom_hex(fill="deeppink4", color="black", alpha=0.75) +theme_calc()
+```
+
+### Hexbin+
+```{r}
+ggplot(dsmall, aes(x=price, y=carat) ) +
+  geom_hex() +theme_calc()+scale_fill_gradient(low="lightblue1",high="darkblue",trans="log10")
+```
+
+## Column 2 {.active .tabset .tabset-fade .tabset-pills}
+### ScatterPlot
+```{r}
+ggplot1 <- ggplot(dsmall,aes(x=carat,y=price))+geom_point(color="deeppink4")+theme_calc()
+ggplot1
+```
+
+### +theme economist
+```{r}
+ggplot2 <- ggplot(dsmall,aes(x=carat,y=price,colour=color))+
+  geom_point()+ #geom_point(color="")
+  ggtitle("Price by carat")+
+  labs(x="Carat",y="Price")+
+  theme_economist()+scale_colour_economist(name="Color of \nDiamonds")+
+  theme(legend.position = "right") #+theme_classic()
+ggplot2
+```
+
+### + manual
+```{r}
+ggplot3 <- ggplot(dsmall,aes(x=carat,y=price,colour=color))+
+  geom_point()+ #geom_point(color="")
+  ggtitle("Price by \ncarat")+
+  labs(x="Carat",y="Price")+
+  theme(plot.title = element_text(hjust = 0.45,size=20, face="bold", 
+    margin = margin(5, 0, 5, 0), vjust=1, family = "Comic Sans MS", lineheight = 0.7),
+    axis.text.x=element_text(angle=0, size=12,vjust=0.9),
+    axis.text.y=element_text(angle=0, size=12, vjust=0.5),
+    axis.title.x= element_text(color="maroon",size=15),
+    axis.title.y= element_text(color="green3",size=15),
+    legend.title = element_text(color = "mediumorchid4",size=12,face="bold"),
+    legend.key=element_rect(fill='mediumorchid4'),
+    panel.background = element_rect(fill = 'gray88'),
+    panel.grid.major = element_line(color="darkorchid2",size=0.37),
+    panel.grid.minor = element_line(color="maroon"),
+    plot.background = element_rect(fill = 'gray80'))+
+#  facet_wrap(~color,ncol=2,scales = "free")+
+  scale_color_discrete(name="Color of \nDiamonds")+
+  ylim(c(0,20000))+ xlim(c(0,3))
+# family = "Times New Roman" fonts()
+# coord_equal() - axes to be the same
+# grid.arrange(ggplot1, plot2, ncol=2) - combine in 1 graph
+ggplot3
+```
+
+### manual + line
+```{r}
+ggplot4 <- ggplot(dsmall,aes(x=carat,y=price))+
+  geom_point(aes(color="Point Values"),size=1)+ #geom_point(color="")
+  stat_smooth(method = "lm",aes(color="Regression Line"))+
+  scale_color_manual(name="", values=c("brown2","blue3"))+
+  guides(colour = guide_legend(override.aes = list(linetype=c(0,1)
+                                                      , shape=c(16, NA))))+
+  ggtitle("Price by carat")+
+  labs(x="Carat",y="Price")+
+  theme(plot.title = element_text(hjust = 0.45,size=20, face="bold", 
+    margin = margin(5, 0, 5, 0), vjust=1, family = "Comic Sans MS", lineheight = 0.7),
+    axis.text.x=element_text(angle=0, size=12,vjust=0.9),
+    axis.text.y=element_text(angle=0, size=12, vjust=0.5),
+    axis.title.x= element_text(color="maroon",size=15),
+    axis.title.y= element_text(color="green3",size=15),
+    panel.background = element_rect(fill = 'gray98'),
+    panel.grid.major = element_line(color="green2",size=0.37),
+    panel.grid.minor = element_line(color="yellow1",size=0.4),
+    plot.background = element_rect(fill = 'gray90'),
+    legend.background = element_rect(fill="gray90"),
+    # legend.title = element_text(color = "mediumorchid4",size=12,face="bold"),
+    legend.key=element_rect(fill='gray74'))+
+  ylim(c(0,20000))+ xlim(c(0,3))
+ # family = "Times New Roman" fonts()
+ # coord_equal() - axes to be the same
+ggplot4
+```  
+
+### + theme darkunica + manual
+```{r}
+ggplot5 <- ggplot(dsmall,aes(x=carat,y=price,colour=color))+
+  geom_point()+ #geom_point(color="")
+  ggtitle("Price by carat")+
+  labs(x="Carat",y="Price")+
+  theme_hc(style = "darkunica") +
+  scale_color_hc(palette="darkunica",name="Color of \nDiamonds")+
+theme(plot.title = element_text(hjust = 0.45,size=20, face="bold", 
+    margin = margin(5, 0, 5, 0), vjust=1, family = "Comic Sans MS", lineheight = 0.7),
+    axis.text.x=element_text(angle=0, size=12,vjust=0.9),
+    axis.text.y=element_text(angle=0, size=12, vjust=0.5),
+    axis.title.x= element_text(color="maroon",size=15),
+    axis.title.y= element_text(color="green3",size=15),
+    legend.title = element_text(color = "mediumorchid4",size=12,face="bold"),
+    legend.position = "right")+
+  geom_text(data=dsmall, aes( x=2.72, y=5500, label="Highest Carat"),
+            color="mediumvioletred",size=3.5 , angle=0, fontface="italic")+
+  ylim(c(0,20000))+ xlim(c(0,3))
+ggplot5
+```
+
+### + theme darkunica + manual + animate
+```{r}
+a2 <- ggplot(dsmall,aes(x=carat,y=price,colour=color))+
+  geom_point()+
+  ggtitle("Price by carat",subtitle = "Now showing color {closest_state}")+
+  labs(x="Carat",y="Price")+
+  theme_hc(style = "darkunica") +
+  scale_color_hc(palette="darkunica",name="Color of \nDiamonds")+
+  theme(plot.title = element_text(hjust = 0.45,size=20, face="bold",color="aquamarine", 
+    margin = margin(5, 0, 5, 0), vjust=1, family = "Comic Sans MS", lineheight = 0.7),
+    plot.subtitle = element_text(size = 15, color= "deeppink2"),
+    axis.text.x=element_text(angle=0, size=12,vjust=0.9),
+    axis.text.y=element_text(angle=0, size=12, vjust=0.5),
+    axis.title.x= element_text(color="maroon",size=15),
+    axis.title.y= element_text(color="green3",size=15),
+    legend.title = element_text(color = "mediumorchid4",size=12,face="bold"),
+    legend.position = "right")+
+  ylim(c(0,20000))+ xlim(c(0,3))+
+  transition_states(color,transition_length = 3, state_length = 1) +  
+  enter_fade() + 
+  exit_shrink()
+animate(a2, renderer = gifski_renderer())
+```
+
+# plotly {data-icon="fas fa-chart-line"}
+## Column 1 {.active .tabset .tabset-fade .tabset-pills}
+### Line plot types + Dropdown
+```{r}
+updatemenus1 <- list(
+  list(
+    active = -1,
+    xanchor = 'left',
+    yanchor = "top",
+    x = 0.03,
+    y = 1,
+    buttons = list(
+      list(
+        label = "Line",
+        method = "update",
+        args = list(list(visible = c(T, F, F, F, F)),
+                    list(title = "Line"))),
+      list(
+        label = "Dot",
+        method = "update",
+        args = list(list(visible = c(F, T, F, F, F)),
+                    list(title = "Dot"))),
+      list(
+        label = "Dash",
+        method = "update",
+        args = list(list(visible = c(F, F, T, F, F)),
+                    list(title = "Dash"))),
+      list(
+        label = "Long Dash",
+        method = "update",
+        args = list(list(visible = c(F, F, F, T, F)),
+                    list(title = "Long Dash"))),
+      list(
+        label = "Dash Dot",
+        method = "update",
+        args = list(list(visible = c(F, F, F, F, T)),
+                    list(title = "Dash Dot"))),
+      list(
+        label = "ALL",
+        method = "update",
+        args = list(list(visible = c(T, T, T, T, T)),
+                    list(title = "Line Types")))
+      )
+  )
+)
+plot_ly(data2,x=~x) %>% 
+  add_lines(y=~y+6, name="Line", line = list(color = 1, width = 3, dash = 'solid')) %>% 
+  add_lines(y=~y+4, name="Dot", line = list(color = 2, width = 3, dash = 'dot')) %>% 
+  add_lines(y=~y+2, name="Dash", line = list(color = 3, width = 3, dash = 'dash')) %>% 
+  add_lines(y=~y, name="Long dash", line = list(color = 4, width = 3, dash = 'longdash')) %>% 
+  add_lines(y=~y-2, name="Dash dot", line = list(color = 5, width = 3, dash = 'dashdot')) %>% 
+  layout(title="Line types",
+         yaxis=list(title=""),
+         xaxis=list(title=""),
+         showlegend=F,
+         updatemenus=updatemenus1)
+```
+
+### Line plots modes + buttons
+```{r}
+updatemenus2 <- list(list(
+    active = -1,
+    xanchor = 'left',
+    yanchor = "top",
+    x = 0.03,
+    y = 1,
+    type= 'buttons',
+    buttons = list(
+      list(
+        label = "Line",
+        method = "update",
+        args = list(list(visible = c(T, F, F)),
+                    list(title = "Line"))),
+      list(
+        label = "Markers",
+        method = "update",
+        args = list(list(visible = c(F, T, F)),
+                    list(title = "Markers"))),
+      list(
+        label = "Line+Markers",
+        method = "update",
+        args = list(list(visible = c(F, F, T)),
+                    list(title = "Line+Markers"))),
+      list(
+        label = "ALL",
+        method = "update",
+        args = list(list(visible = c(T, T, T)),
+                    list(title = "Line plot modes")))
+      )
+  )
+)
+plot_ly(data2,x=~x) %>% add_trace(y=~y, name="Line", mode="lines") %>% 
+  add_trace(y=~y+2, name="Markers", mode="markers") %>% 
+  add_trace(y=~y-2, name="Line+markers", mode="lines+markers") %>% 
+    layout(title="Line types",
+         yaxis=list(title=""),
+         xaxis=list(title=""),
+         showlegend=F,
+         updatemenus=updatemenus2)
+```
+
+### Line interpolation options + Slider
+```{r}
+data3 <- data.frame(x=1:5,y=c(1,3,2,3,1))
+steps <- list(
+  list(args = list(list(visible=c(T,F,F,F,F,F))), 
+                    label = "Linear", 
+                    method = "update", 
+                    value = "1"
+                    ),
+  list(args = list(list(visible=c(F,T,F,F,F,F))), 
+                    label = "Spline", 
+                    method = "update", 
+                    value = "2"
+                    ),
+  list(args = list(list(visible=c(F,F,T,F,F,F))), 
+                    label = "vhv", 
+                    method = "update", 
+                    value = "3"
+                    ),
+  list(args = list(list(visible=c(F,F,F,T,F,F))), 
+                    label = "hvh", 
+                    method = "update", 
+                    value = "4"
+                    ),
+  list(args = list(list(visible=c(F,F,F,F,T,F))), 
+                    label = "vh", 
+                    method = "update", 
+                    value = "5"
+                    ),
+  list(args = list(list(visible=c(F,F,F,F,F,T))), 
+                    label = "hv", 
+                    method = "update", 
+                    value = "6"
+                    ),
+  list(args = list(list(visible=c(T,T,T,T,T,T))), 
+                    label = "All", 
+                    method = "update", 
+                    value = "7"
+                    )
+  )
+
+plot_ly(data3,x=~x) %>% 
+  add_lines(y=~y+6, name="Linear", line = list(color = 1, width = 3, shape = "linear")) %>% 
+  add_lines(y=~y+4, name="Spline", line = list(color = 2, width = 3, shape = "spline")) %>% 
+  add_lines(y=~y+2, name="vhv", line = list(color = 3, width = 3, shape = "vhv")) %>% 
+  add_lines(y=~y, name="hvh", line = list(color = 4, width = 3, shape = "hvh")) %>% 
+  add_lines(y=~y-2, name="vh", line = list(color = 5, width = 3, shape = "vh")) %>% 
+  add_lines(y=~y-4, name="hv", line = list(color = 5, width = 3, shape = "hv")) %>% 
+  layout(title="Line Interpolation Options",
+         yaxis=list(title=""),
+         xaxis=list(title=""),
+         sliders = list(
+           list(
+             active = 1, 
+             currentvalue = list(prefix = "Option: "), 
+             pad = list(t = 60), 
+             steps = steps)))
+```
+
+
+## Column 2 {.active .tabset .tabset-fade .tabset-pills}
+
+### Scatter plot 
+```{r}
+plot_ly(dsmall,x=~carat,y=~price,color=I("deeppink4"),stroke = I("black"), span = I(0.3),alpha = 0.75)
+```
+
+### Scatter plot +
+```{r}
+l <- list(font = list(
+    family = "sans-serif",
+    size = 12,
+    color = "#000"),
+  bgcolor = "#E2E2E2",
+  bordercolor = "#FFFFFF",
+  borderwidth = 2,
+  title=list(text='<b> Color of \nDiamonds </b>'))
+attach(dsmall)
+plot_ly(dsmall,x=~carat,y=~price, alpha=1,color=~color, colors="RdYlBu",
+        symbol=I(18), stroke=I("deeppink4"),span=I(1), size=I(80),
+        text=~paste("Price: ",price, "$<br>Color: ", color)) %>% 
+  layout(title = "Price by carat",
+         xaxis = list(title = "Carat",zeroline=F),
+         yaxis = list(title = "Price",zeroline=F),
+         legend=l)
+```
+
+### Density plot
+```{r}
+plot_ly(x = ~density$x, y = ~density$y, type = 'scatter', mode = 'lines', fill = 'tozeroy',
+        color=I("deeppink4"),stroke = I("black"), span = I(1),alpha = 0.75) %>% 
+  layout(xaxis = list(title = 'Carat'),
+         yaxis = list(title = 'Density'))
+```
+
+### Density plot + 
+```{r}
+d_fair <- diamonds[which(diamonds$cut=="Fair"),]
+d_good <- diamonds[which(diamonds$cut=="Good"),]
+d_verygood <- diamonds[which(diamonds$cut=="Very Good"),]
+d_premium <- diamonds[which(diamonds$cut=="Premium"),]
+d_ideal <- diamonds[which(diamonds$cut=="Ideal"),]
+
+d_fair <- density(d_fair$carat)
+d_good <- density(d_good$carat)
+d_verygood <- density(d_verygood$carat)
+d_premium <- density(d_premium$carat)
+d_ideal <- density(d_ideal$carat)
+
+plot_ly(x=~d_fair$x, y=d_fair$y, type='scatter', mode="lines",name = "Fair", fill="tozeroy") %>%
+  add_trace(x= ~d_good$x, y= ~d_good$y, name= "Good", fill="tozeroy") %>%
+  add_trace(x= ~d_verygood$x, y= ~d_verygood$y, name= "Very Good", fill="tozeroy") %>%
+  add_trace(x= ~d_premium$x, y= ~d_premium$y, name= "Premium", fill="tozeroy") %>%
+  add_trace(x= ~d_ideal$x, y= ~d_ideal$y, name= "Ideal", fill="tozeroy") %>%
+    layout(xaxis = list(title = 'Carat'),
+         yaxis = list(title = 'Density'))
+
+```
+
+
+### BarPlot
+```{r}
+  plot_ly(diamonds, x=~cut,color=I("deeppink4"),stroke = I("black"), span = I(1),alpha = 0.75) %>%
+  add_histogram() %>% 
+  group_by(cut) %>% 
+    summarise(Count = n()) %>%
+  add_text(
+    text = ~scales::comma(Count), y = ~Count, 
+    textposition = "top middle", 
+    cliponaxis = F,
+    color=I("black")) %>% 
+  layout(showlegend = FALSE)
+```
+
+### BarPlot +
+```{r}
+diamonds %>% 
+  count(cut, color) %>% 
+  plot_ly(x=~cut,y=~n, color=~color,colors="YlOrRd",type="bar", textposition='auto') %>% 
+  layout(xaxis= list(title="Cut"),yaxis = list(title = 'Count'), barmode = 'group') # barmode="stack"
+# text=~paste("Price: ",price, "$<br>Color: ", color)
+```
+
+### Pie chart
+```{r}
+diamonds %>% 
+  group_by(cut) %>% 
+  summarise(Count = n()) %>%
+plot_ly(labels= ~cut, values=~Count, type='pie') %>% 
+    layout(title = '',
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+```
+
+### Pie chart + 
+```{r}
+colors <- c('rgb(128,133,133)', 'rgb(144,103,167)', 'rgb(210,105,30)', 'rgb(114,147,203)','rgb(211,94,96)')
+diamonds %>% 
+    group_by(cut) %>% 
+    summarise(Count = n()) %>%
+plot_ly(labels= ~cut, values=~Count, type='pie',
+        textposition = 'inside',
+        textinfo = 'label+percent',
+        insidetextfont = list(color = '#FFFFFF'),
+        hoverinfo = 'text',
+        text = ~paste('', Count, ''),
+        marker = list(colors = colors,
+                      line = list(color = '#FFFFFF', width = 2)),
+        showlegend=F) %>% 
+  layout(title = '',
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+ # layout(showlegend=F)
+```
+
+### Boxplot
+```{r}
+dsmall %>% plot_ly(y=~carat, type="box",color=~cut,colors="YlOrRd")
+```
+
+### Histogram
+```{r}
+plot_ly(dsmall, x=~carat,type = "histogram",
+        color=I("deeppink4"),stroke = I("black"), span = I(1),alpha = 0.75)
+
+```
+
+### Histogram +rangeslider
+```{r}
+plot_ly(dsmall, x=~carat,type = "histogram", color=~cut, colors="BuPu",
+        stroke = I("black"), span = I(0.5),alpha = 0.75) %>% 
+  layout(barmode="stack", bargap=0.1) %>% 
+  rangeslider()
+
+```
+
+### Violin plot
+```{r}
+dsmall %>% plot_ly(x=~cut,y=~carat, type="violin",
+                   color=I("deeppink4"),stroke = I("black"), span = I(1),alpha = 0.75)
+```
+
+### Violin plot + 
+```{r}
+dsmall %>% plot_ly(x=~cut,y=~carat, type="violin", color=~cut, colors="PiYG",
+                   stroke = I("black"), span = I(0.1),alpha = 0.75,
+                    box = list(visible = T),
+    meanline = list(visible = T)) %>% 
+  layout(xaxis = list(title = "Cut"), 
+         yaxis = list(title = "Carat", zeroline = F))
+```
+
+### 3D Density plot
+```{r}
+dens <- with(diamonds, tapply(price, INDEX = cut, density))
+data4 <- data.frame(
+  x = unlist(lapply(dens, "[[", "x")),
+  y = unlist(lapply(dens, "[[", "y")),
+  cut = rep(names(dens), each = length(dens[[1]]$x)))
+
+plot_ly(data4, x = ~x, y = ~y, z = ~cut, type = 'scatter3d', mode = 'lines', color = ~cut)
+```
+
+# highcharter {data-icon="fas fa-chart-bar"}
+## Column 1 {.active .tabset .tabset-fade .tabset-pills}
+### Scatter
+```{r}
+dsmall %>% 
+  hchart('scatter', hcaes(x = carat, y = price), color="#9E2A64") %>% hc_add_theme(hc_theme_smpl()) 
+```
+
+### Scatter +
+```{r}
+dsmall %>% 
+  hchart('scatter', hcaes(x = carat, y = price, group = color, size= price), maxSize="3.5%") %>% 
+  hc_colors(brewer.pal(6, "RdYlBu"))%>% hc_add_theme(hc_theme_538()) 
+```
+
+### Bar plot
+```{r}
+hchart(diamonds$cut, name = "frequency", color="#9E2A64",borderColor="black",pointWidth = 110,
+       showInLegend = F) %>%
+  hc_add_theme(hc_theme_elementary()) 
+```
+
+### Bar plot +
+```{r}
+diamonds %>% count(color,cut) %>% hchart("bar", hcaes(x="cut",y="n", group="color", pointWidth=8)) %>% 
+  hc_colors(c("#FFFFCC","#FFEDA0","#FED976","#FEB24C","#FD8D3C","#E31A1C","#B10026"))%>%
+  hc_add_theme(hc_theme_flat()) 
+```
+
+### Tree map
+```{r}
+diamonds %>% count(cut) %>% hchart("treemap",hcaes(x="cut",value="n",color="n")) %>% 
+  hc_colorAxis(stops = color_stops(colors = viridis::inferno(10)))%>% hc_add_theme(hc_theme_ft()) 
+```
+
+### Time series
+```{r}
+lungDeaths %>% hchart()%>% hc_add_theme(hc_theme_bloom()) 
+```
+
+### Forecast
+```{r}
+fc<-forecast(ldeaths,level = 95)
+hchart(fc) %>% hc_add_theme(hc_theme_ggplot2())
+```
+
+### Pie chart
+```{r}
+a %>%
+  hchart(
+    "pie", hcaes(x = cut, y = n),
+    name = "")
+```
+
+### Area plot
+```{r}
+diamonds %>% count(cut, color) %>% hchart('areaspline', hcaes(x = cut, y = n, group=color)) %>%
+  hc_add_theme(hc_theme_superheroes()) 
+
+```
+
+### Density
+```{r}
+d_fair <- diamonds[which(diamonds$cut=="Fair"),]
+d_good <- diamonds[which(diamonds$cut=="Good"),]
+d_verygood <- diamonds[which(diamonds$cut=="Very Good"),]
+d_premium <- diamonds[which(diamonds$cut=="Premium"),]
+d_ideal <- diamonds[which(diamonds$cut=="Ideal"),]
+
+d_fair <- density(d_fair$carat)
+d_good <- density(d_good$carat)
+d_verygood <- density(d_verygood$carat)
+d_premium <- density(d_premium$carat)
+d_ideal <- density(d_ideal$carat)
+hchart(
+  d_fair, type = "area", 
+  color = "#66C2A5", name = "Fair"
+  ) %>%
+  hc_add_series(
+    d_good, type = "area",
+    color = "#FC8D62", 
+    name = "Good"
+    ) %>% 
+  hc_add_series(
+    d_verygood, type = "area",
+    color = "#8DA0CB", 
+    name = "Very good"
+    ) %>% 
+  hc_add_series(
+    d_premium, type = "area",
+    color = "#E78AC3", 
+    name = "Premium"
+    ) %>% 
+  hc_add_series(
+    d_ideal, type = "area",
+    color = "#A6D854", 
+    name = "Ideal"
+    )%>% hc_add_theme(hc_theme_tufte()) 
+```
+
+### Boxplot 
+```{r}
+hcboxplot(
+  x = dsmall$carat,
+  var = dsmall$cut,
+  name = "Box plot", 
+  color = "#9E2A64") %>% 
+  hc_chart(type = "column") %>% hc_add_theme(hc_theme_alone()) 
+```
+
+### Histogram
+```{r}
+h <- hist(diamonds$carat, main="",
+     xlab="Carat",
+     xlim=c(0,3),
+     col="deeppink4",
+     breaks = 30)
+hchart(h, name="",showInLegend = F)%>% hc_add_theme(hc_theme_flatdark()) %>% hc_xAxis(title=list(text="carat"))
+```
+
+## Column 2 {.tabset}
+
+### Area plot+pie
+```{r, fig.width=8}
+diamonds %>% count(cut, color) %>% hchart('areaspline', hcaes(x = cut, y = n, group=color)) %>%
+  hc_add_theme(hc_theme_google()) %>% 
+  hc_add_series(a, "pie", hcaes(x = cut, y = n),
+    name = "") %>% 
+  hc_plotOptions(
+    series = list(
+      showInLegend = FALSE,
+      pointFormat = "{point.y}%",
+      colorByPoint = F
+      ),
+    pie = list(
+      center = c('20%', '20%'),
+      size = 150,
+      dataLabels = list(enabled = FALSE),
+      colorByPoint = T
+      )
+    ) %>% 
+  hc_title(text = "Area plot + pie",   
+           style = list(fontWeight = "bold", fontSize = "25px", color="black"),
+           align = "center")
+```
+
+### 3D bar
+```{r, fig.width=8}
+highchart() %>% 
+  hc_chart(type="column", options3d = list(enabled = TRUE, beta = 15, alpha = 15)) %>% 
+  hc_xAxis(categories=a$cut, title = list(text = "Diamond quality"),
+           gridLineColor="", gridLineWidth=0) %>% 
+  hc_yAxis(title = list(text = "count"), gridLineColor="#606060", gridLineWidth=1,
+           plotLines = list(
+      list(
+        label = list(text = "Highest"),
+        color = "#99004C",
+        width = 2,
+        value = 382)),
+      plotBands = list(
+      list(
+        from = 271,
+        to = 382,
+        color = hex_to_rgba("red", 0.1),
+        label = list(text = "This is a plotBand"),
+        # the zIndex is used to put the label text over the grid lines 
+        zIndex = 1
+      )
+    )) %>% 
+  hc_add_series(data=a$n, name="freq",showInLegend = F) %>% 
+  hc_title(text = "Interactive Bar plot",   
+           style = list(fontWeight = "bold", fontSize = "30px", color="White"),
+           align = "center") %>% 
+  hc_subtitle(text = "Prices of over 50,000 round cut diamonds",align = "center") %>% 
+  hc_caption(
+    text = "A <b>dataset</b> containing the prices and other attributes of almost 54,000 <i>diamonds</i>.", 
+    useHTML = TRUE
+  ) %>% 
+  hc_add_theme(hc_theme_db()) %>% 
+  hc_credits(
+    enabled = TRUE, 
+    text = "My rpubs",
+    href = "https://rpubs.com/byambaa212",
+    target= 'blank',
+    style = list(fontSize = "10px")) 
+```
+
+# dygraph {data-icon="fas fa-chart-area"}
+## Column 1 {data-width=350}
+### Line plot types 
+```{r}
+dygraph(ldeaths, main = "All", group = "lung-deaths") %>%
+  dySeries("V1", label= "ldeaths",strokeWidth = 2, strokePattern = "dotted",color="#9E2A64") %>% 
+  dyOptions(fillGraph = TRUE, fillAlpha = 0.4, colors="#9E2A64")
+```
+
+### 
+```{r}
+dygraph(fdeaths, main = "Female", group = "lung-deaths") %>%
+  dySeries("V1", label = "fdeaths", strokeWidth = 2, strokePattern = "dashed",color="#9E2A64")%>% 
+  dyOptions(fillGraph = TRUE, fillAlpha = 0.4, colors="#9E2A64")
+```
+
+### 
+```{r}
+dygraph(mdeaths, main = "Male", group = "lung-deaths") %>%
+  dySeries("V1", label = "mdeaths", strokeWidth = 2, strokePattern = "dotdash",color="#9E2A64")%>% 
+  dyOptions(fillGraph = TRUE, fillAlpha = 0.4, colors="#9E2A64")
+```
+
+### type+shape+step
+```{r, fig.height=12, fig.width=350} 
+# pointShape= “dot”, “triangle”, “square”, “diamond”, “pentagon”, “hexagon”, “circle”, “star”, “plus”, “ex”
+dygraph(lungDeaths, main = "") %>%
+  dySeries("ldeaths", strokeWidth = 2, strokePattern = "dashed", color="") %>% 
+  dySeries("mdeaths", drawPoints = T, pointShape = "star", color = "", pointSize = 4) %>%
+  dySeries("fdeaths", stepPlot = TRUE, fillGraph = TRUE, color = "") %>%
+  dyOptions(colors = brewer.pal(3,"Set1"))
+```
+
+## Column 2 
+### 
+```{r}
+dyMultiColumn <- function(dygraph) {
+  dyPlotter(dygraph = dygraph,
+            name = "MultiColumn",
+            path = system.file("plotters/multicolumn.js",
+                               package = "dygraphs"))
+}
+dygraph(lungDeaths) %>%
+  dyMultiColumn()
+```
+
+### 
+```{r}
+dygraph(lungDeaths, main = "Deaths from Lung Disease (UK)") %>%
+  dySeries("ldeaths", label = "Both") %>%
+  dySeries("mdeaths", label = "Male") %>%
+  dySeries("fdeaths", label = "Female") %>%
+  dyOptions(stackedGraph = F, 
+            colors=c("#FF8C00","#000066","#800080"),
+            includeZero = TRUE, 
+            axisLineColor = "#191970",
+            axisLabelColor = "#BF3B7D",
+            gridLineColor = "#D8BFD8") %>% # colors = brewer.pal(3,"Set1")
+  dyHighlight(highlightCircleSize = 5, 
+              highlightSeriesBackgroundAlpha = 0.3,
+              hideOnMouseOut = T,
+              highlightSeriesOpts = list(strokeWidth = 1.5)) %>% 
+  dyAxis("x", drawGrid = FALSE) %>%
+  dyAxis("y", label = "Deaths", valueRange = c(0,4100)) %>%
+  dyRangeSelector(height = 30,dateWindow = c("1975-01-01", "1979-01-01"), strokeColor = "#FFCCE5") %>%
+  dyLegend(show = "follow", hideOnMouseOut = T, width=200) %>% # show= "onmouseover","always", "follow"
+  dyShading(from = "1975-9-1", to = "1976-2-1", color = "#FFE5CC") %>% 
+  dyEvent("1976-2-1", label = "Highest death", labelLoc = "bottom",color = "#696969") %>% 
+  dyLimit(330,color="#FF9999",labelLoc = "left",label="Limit") %>% 
+  dyUnzoom() %>% 
+  dyCrosshair(direction = "vertical")
+```
+
+
+
+
